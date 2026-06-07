@@ -1,0 +1,381 @@
+/* ─── Google Fonts ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+/* ─── Theme tokens — Warm Sage ─────────────────────────────────── */
+:root {
+  /* Backgrounds — dari gelap ke terang */
+  --bg0: #1E201C;   /* page background, paling gelap */
+  --bg1: #272920;   /* card surface */
+  --bg2: #30322A;   /* elevated card / input */
+  --bg3: #3A3C33;   /* tag / chip bg */
+  --bg4: #44473C;   /* hover state */
+
+  /* Accent — Sage Green */
+  --acc:      #8BAF7C;
+  --acc2:     #A4C794;   /* lighter, untuk teks di atas bg gelap */
+  --acc3:     #6A9259;   /* darker, untuk border */
+  --acc-dim:  rgba(139, 175, 124, 0.15);
+  --acc-dim2: rgba(139, 175, 124, 0.08);
+
+  /* Semantic colors */
+  --gold:     #C9A96E;
+  --gold-dim: rgba(201, 169, 110, 0.15);
+
+  --red:      #D4736A;
+  --red-dim:  rgba(212, 115, 106, 0.15);
+
+  --blue:     #7AACCC;
+  --blue-dim: rgba(122, 172, 204, 0.15);
+
+  --teal:     #5DCAA5;
+  --teal-dim: rgba(93, 202, 165, 0.13);
+
+  /* Typography */
+  --txt:      #E4E8DC;   /* primary text */
+  --txt2:     #9EA394;   /* secondary / muted */
+  --txt3:     #6B6F63;   /* placeholder / disabled */
+
+  /* Borders */
+  --bdr:      rgba(255, 255, 255, 0.07);
+  --bdr2:     rgba(255, 255, 255, 0.13);
+
+  /* Font */
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Border radius */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-full: 999px;
+}
+
+/* ─── Reset & Base ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg0);
+  color: var(--txt);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: var(--font);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+input, textarea, select {
+  font-family: var(--font);
+  color: var(--txt);
+  background: none;
+  border: none;
+  outline: none;
+  font-size: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--txt3);
+}
+
+/* native date/time inputs — override browser default */
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+a {
+  color: var(--acc2);
+  text-decoration: none;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────── */
+.scroll-y {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.scroll-y::-webkit-scrollbar { display: none; }
+
+/* ─── Layout Utilities ───────────────────────────────────────────── */
+.flex        { display: flex; }
+.flex-col    { display: flex; flex-direction: column; }
+.items-center{ align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-8       { gap: 8px; }
+.gap-12      { gap: 12px; }
+.flex-1      { flex: 1; }
+.w-full      { width: 100%; }
+
+/* ─── Card ────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg1);
+  border: 0.5px solid var(--bdr);
+  border-radius: var(--r-lg);
+  padding: 14px;
+}
+
+.card-elevated {
+  background: var(--bg2);
+  border: 0.5px solid var(--bdr);
+  border-radius: var(--r-lg);
+  padding: 14px;
+}
+
+/* ─── Typography ──────────────────────────────────────────────────── */
+.sec-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 14px 0 8px;
+}
+
+/* ─── Pills / Badges ──────────────────────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.pill-sage   { background: var(--acc-dim);  color: var(--acc2); }
+.pill-gold   { background: var(--gold-dim); color: var(--gold); }
+.pill-red    { background: var(--red-dim);  color: var(--red);  }
+.pill-blue   { background: var(--blue-dim); color: var(--blue); }
+.pill-teal   { background: var(--teal-dim); color: var(--teal); }
+
+/* ─── Buttons ─────────────────────────────────────────────────────── */
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: var(--acc);
+  color: #1A2217;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font);
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-primary:active  { opacity: 0.82; transform: scale(0.99); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-ghost {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: var(--txt2);
+  font-size: 13px;
+  font-family: var(--font);
+}
+
+.btn-outline {
+  padding: 9px 16px;
+  border: 0.5px solid var(--bdr2);
+  border-radius: var(--r-md);
+  background: var(--bg2);
+  color: var(--txt);
+  font-size: 13px;
+  font-family: var(--font);
+  transition: background 0.15s;
+}
+.btn-outline:active { background: var(--bg3); }
+
+/* ─── Form Fields ─────────────────────────────────────────────────── */
+.field-label {
+  font-size: 12px;
+  color: var(--txt2);
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg2);
+  border: 0.5px solid var(--bdr2);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  color: var(--txt);
+  font-family: var(--font);
+  margin-bottom: 12px;
+  transition: border-color 0.15s;
+}
+.field-input:focus {
+  border-color: var(--acc3);
+}
+
+/* ─── Progress Bar ────────────────────────────────────────────────── */
+.prog-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.prog-fill {
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width 0.45s ease;
+}
+
+.prog-sage  { background: var(--acc); }
+.prog-teal  { background: var(--teal); }
+.prog-blue  { background: var(--blue); }
+.prog-gold  { background: var(--gold); }
+.prog-red   { background: var(--red); }
+
+/* ─── Divider ─────────────────────────────────────────────────────── */
+.divider {
+  height: 0.5px;
+  background: var(--bdr);
+  margin: 0;
+}
+
+/* ─── Topbar ──────────────────────────────────────────────────────── */
+.topbar {
+  padding: 10px 20px 12px;
+  background: var(--bg0);
+  border-bottom: 0.5px solid var(--bdr);
+  flex-shrink: 0;
+}
+
+.topbar-sub   { font-size: 12px; color: var(--txt2); }
+.topbar-title { font-size: 19px; font-weight: 500; color: var(--txt); margin-top: 1px; }
+
+/* ─── Page layout ─────────────────────────────────────────────────── */
+.page-root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 90px;
+  -webkit-overflow-scrolling: touch;
+}
+.page-scroll::-webkit-scrollbar { display: none; }
+
+/* ─── Animations ─────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.anim-fade-up    { animation: fadeUp 0.22s ease both; }
+.anim-slide-right{ animation: slideInRight 0.2s ease both; }
+.anim-fade-in    { animation: fadeIn 0.18s ease both; }
+
+/* ─── Modal backdrop ─────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-end;
+  z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+
+.modal-sheet {
+  width: 100%;
+  background: var(--bg1);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 0 20px 36px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  animation: fadeUp 0.2s ease;
+}
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--bg3);
+  border-radius: var(--r-full);
+  margin: 14px auto 0;
+  flex-shrink: 0;
+}
+
+/* ─── Check button ───────────────────────────────────────────────── */
+.check-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--bdr2);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+
+.check-btn.checked {
+  background: var(--acc);
+  border-color: var(--acc);
+}
+
+.check-btn.circle {
+  border-radius: 50%;
+}
+
+/* ─── Skeleton loader ────────────────────────────────────────────── */
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to   { background-position:  400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg2) 25%,
+    var(--bg3) 50%,
+    var(--bg2) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: var(--r-md);
+}
