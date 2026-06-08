@@ -16,8 +16,9 @@ export default defineConfig({
         background_color: '#1E201C',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        // PERBAIKAN: Menggunakan '.' agar scope & url sinkron secara dinamis di server hosting
+        scope: '.', 
+        start_url: './', 
         icons: [
           {
             src: 'pwa-192.png',
@@ -33,7 +34,8 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // PERBAIKAN: Menambahkan manifest.webmanifest ke dalam daftar precache workbox
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webmanifest}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
