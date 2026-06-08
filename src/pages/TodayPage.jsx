@@ -36,18 +36,12 @@ export default function TodayPage() {
     }
   }, [user])
 
-  // Menentukan tahap evolusi tanaman kebun berdasarkan poin gardenScore dari store
-  const getGardenEvolution = (score) => {
-    if (score < 30)  return { status: 'Benih Baru 🌱', icon: '🌱', desc: 'Kebun Anda baru saja ditanam, siram dengan menyelesaikan task!' };
-    if (score < 70)  return { status: 'Tunas Sage 🌿', icon: '🌿', desc: 'Tanaman tumbuh subur berkat produktivitas konsisten Anda.' };
-    if (score < 150) return { status: 'Kebun Rindang 🌳', icon: '🌳', desc: 'Luar biasa! Struktur fokus Anda membentuk hutan mini yang asri.' };
-    return { status: 'Surga DayFlow 🌸', icon: '🌸', desc: 'Dewa Produktivitas! Kebun digital Anda kini berbunga penuh!' };
-  }
-
-  const garden = getGardenEvolution(gardenScore || 0);
-  const todayTasks = tasks.filter((t) =>
-    !t.scheduled_at || format(new Date(t.scheduled_at), 'yyyy-MM-dd') === today
-  )
+  // FIX: Task terus berlanjut dari hari sebelumnya jika belum ditandai selesai (!t.is_done)
+  const todayTasks = tasks.filter((t) => {
+    if (!t.is_done) return true; // Tetap muncul jika belum selesai
+    if (!t.scheduled_at) return true;
+    return format(new Date(t.scheduled_at), 'yyyy-MM-dd') === today;
+  })
 
   const grouped = { heavy: [], medium: [], light: [] }
   todayTasks.forEach((t) => { if (grouped[t.category]) grouped[t.category].push(t) })
@@ -68,18 +62,29 @@ export default function TodayPage() {
     toast('Task dihapus', 'info')
   }
 
-  const handleLogHabit = async (h) => {
+  // FIX: Logika klik lingkaran habit yang langsung tersinkronisasi ke DB
+  const handleLogHabitDirect = async (h, currentProg) => {
     if(!user?.id) return
+    const increment = 1;
     await addHabitLog(user.id, {
       habit_id: h.id,
-      value: 1,
+      value: h.measure_type === 'yesno' ? 1 : currentProg + increment,
       logged_at: new Date().toISOString()
     })
-    toast(`${h.name} ✓`, 'success')
+    toast(`${h.name} diperbarui ✓`, 'success')
   }
 
+  const getGardenEvolution = (score) => {
+    if (score < 30)  return { status: 'Benih Baru 🌱', icon: '🌱', desc: 'Kebun Anda baru saja ditanam, siram dengan menyelesaikan task!' };
+    if (score < 70)  return { status: 'Tunas Sage 🌿', icon: '🌿', desc: 'Tanaman tumbuh subur berkat produktivitas konsisten Anda.' };
+    if (score < 150) return { status: 'Kebun Rindang 🌳', icon: '🌳', desc: 'Luar biasa! Struktur focus Anda membentuk hutan mini yang asri.' };
+    return { status: 'Surga DayFlow 🌸', icon: '🌸', desc: 'Dewa Produktivitas! Kebun digital Anda kini berbunga penuh!' };
+  }
+
+  const garden = getGardenEvolution(gardenScore || 0);
+
   return (
-    <div className="page-root">
+    <div className="page-root" style={{ width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Topbar
         sub={dateLabel}
         title={`${greeting()} 👋`}
@@ -96,35 +101,13 @@ export default function TodayPage() {
       />
       
       {(tLoading || hLoading) && todayTasks.length === 0 ? (
-        <div className="page-scroll" style={{ padding: 0 }}>
-          <SkeletonToday />
-        </div>
+        <div className="page-scroll" style={{ padding: 0 }}><SkeletonToday /></div>
       ) : (
-        <div className="page-scroll">
+        <div className="page-scroll" style={{ flex: 1, width: '100%' }}>
 
-          {/* 🌿 KARTU INTEGRASI VISUAL GAMIFIKASI: GARDEN GROWTH */}
-          <div className="card" style={{ 
-            background: 'linear-gradient(135deg, var(--bg2) 0%, var(--acc-dim) 100%)', 
-            border: '1px solid var(--acc3)', 
-            padding: 16, 
-            marginTop: 14,
-            marginBottom: 14, 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 16 
-          }}>
-            <div style={{ 
-              fontSize: 36, 
-              background: 'var(--bg1)', 
-              width: 60, 
-              height: 60, 
-              borderRadius: 16, 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              flexShrink: 0
-            }}>
+          {/* 🌿 KARTU GAMIFIKASI */}
+          <div className="card" style={{ background: 'linear-gradient(135deg, var(--bg2) 0%, var(--acc-dim) 100%)', border: '1px solid var(--acc3)', padding: 16, marginTop: 14, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ fontSize: 36, background: 'var(--bg1)', width: 60, height: 60, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', flexShrink: 0 }}>
               {garden.icon}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -143,12 +126,10 @@ export default function TodayPage() {
               </span>
               <span style={{ fontSize:12, fontWeight:500, color:'var(--acc)' }}>{pct}%</span>
             </div>
-            <div className="prog-track">
-              <div className="prog-fill prog-sage" style={{ width: `${pct}%` }}/>
-            </div>
+            <div className="prog-track"><div className="prog-fill prog-sage" style={{ width: `${pct}%` }}/></div>
           </div>
 
-          {/* GRUP BEBAN KERJA TASK */}
+          {/* GRUP TASK */}
           {['heavy','medium','light'].map((cat) => {
             const items = grouped[cat]
             if (!items.length) return null
@@ -158,33 +139,18 @@ export default function TodayPage() {
                 <div className="sec-label" style={{ display:'flex', alignItems:'center', gap:6 }}>
                   <span style={{ width:7, height:7, borderRadius:'50%', background:dot, display:'inline-block' }}/>
                   Task {label}
-                  <span style={{ background:dim, color:text, padding:'1px 7px', borderRadius:99, fontSize:11, fontWeight:500 }}>
-                    {items.length}
-                  </span>
+                  <span style={{ background:dim, color:text, padding:'1px 7px', borderRadius:99, fontSize:11, fontWeight:500 }}>{items.length}</span>
                 </div>
                 <div className="card" style={{ padding:'4px 14px', marginBottom:8 }}>
                   {items.map((t, i) => (
                     <div key={t.id}>
                       {i > 0 && <div className="divider"/>}
                       <div style={{ display:'flex', alignItems:'center', gap:10, padding:'11px 0' }}>
-                        <button
-                          onClick={() => handleToggle(t)}
-                          className={`check-btn ${t.is_done ? 'checked' : ''}`}
-                          aria-label={t.is_done ? 'Batalkan' : 'Selesaikan'}
-                          style={{ background:'none', cursor:'pointer' }}
-                        >
+                        <button onClick={() => handleToggle(t)} className={`check-btn ${t.is_done ? 'checked' : ''}`} style={{ background:'none', cursor:'pointer' }}>
                           {t.is_done && <Check size={13} color="#1A2217" strokeWidth={3}/>}
                         </button>
-                        <span style={{
-                          flex:1, fontSize:13, lineHeight:1.4,
-                          color: t.is_done ? 'var(--txt3)' : 'var(--txt)',
-                          textDecoration: t.is_done ? 'line-through' : 'none',
-                        }}>
-                          {t.title}
-                        </span>
-                        <button onClick={() => handleRemove(t)} style={{ color:'var(--txt3)', padding:4, flexShrink:0, background:'none', border:'none', cursor:'pointer' }}>
-                          <Trash2 size={14}/>
-                        </button>
+                        <span style={{ flex:1, fontSize:13, lineHeight:1.4, color: t.is_done ? 'var(--txt3)' : 'var(--txt)', textDecoration: t.is_done ? 'line-through' : 'none' }}>{t.title}</span>
+                        <button onClick={() => handleRemove(t)} style={{ color:'var(--txt3)', padding:4, flexShrink:0, background:'none', border:'none', cursor:'pointer' }}><Trash2 size={14}/></button>
                       </div>
                     </div>
                   ))}
@@ -197,10 +163,10 @@ export default function TodayPage() {
             <div style={{ textAlign:'center', padding:'48px 0 20px', color:'var(--txt3)' }}>
               <div style={{ fontSize:36, marginBottom:10 }}>🌿</div>
               <div style={{ fontSize:14, color:'var(--txt2)', marginBottom:4 }}>Belum ada task hari ini</div>
-              <div style={{ fontSize:12 }}>Tap tombol + untuk menambahkan task</div>
             </div>
           )}
 
+          {/* LIST HABIT HARI INI */}
           {habits.length > 0 && (
             <>
               <div className="sec-label">Habit hari ini</div>
@@ -209,7 +175,7 @@ export default function TodayPage() {
                   const todayLogs = habitLogs.filter(log => log.habit_id === h.id && format(new Date(log.logged_at), 'yyyy-MM-dd') === today)
                   const progVal = todayLogs.reduce((sum, curr) => sum + curr.value, 0)
                   const isDone = h.measure_type === 'yesno' ? todayLogs.length > 0 : progVal >= h.target_value
-                  const streak = getStreak ? getStreak(h.id) : 0
+                  const streak = getStreak ? getStreak(h.id, habitLogs) : 0
                   
                   return (
                     <div key={h.id}>
@@ -231,8 +197,9 @@ export default function TodayPage() {
                             <Flame size={11}/>{streak}
                           </span>
                         )}
+                        {/* FIX: Lingkaran habit sekarang interaktif & mencatat data */}
                         <button
-                          onClick={() => h.measure_type === 'yesno' && !isDone && handleLogHabit(h)}
+                          onClick={() => !isDone && handleLogHabitDirect(h, progVal)}
                           className={`check-btn circle ${isDone ? 'checked' : ''}`}
                           style={{ background:'none', cursor: isDone ? 'default' : 'pointer' }}
                           disabled={isDone}
