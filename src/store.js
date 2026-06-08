@@ -171,21 +171,32 @@ export const useScheduleStore = create((set, get) => ({
 // ==========================================
 // 5. HABIT LOG STORE
 // ==========================================
+// ==========================================
+// 5. HABIT LOG STORE (YANG SUDAH DIPERBAIKI)
+// ==========================================
 export const useHabitLogStore = create((set, get) => ({
   habitLogs: [],
   loading: false,
   error: null,
+  
   fetchHabitLogs: async (userId) => {
     set({ loading: true, error: null });
-    const { data, error } = await supabase.from('habit_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+    // MENGUBAH order() DARI 'logged_at' MENJADI 'created_at'
+    const { data, error } = await supabase
+      .from('habit_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false }); 
+
     if (error) set({ error: error.message });
     set({ habitLogs: data || [], loading: false });
   },
+  
   addHabitLog: async (userId, logData) => {
     set({ loading: true, error: null });
     const { error } = await supabase.from('habit_logs').insert({ ...logData, user_id: userId });
     if (error) { set({ error: error.message, loading: false }); throw error; }
     await get().fetchHabitLogs(userId);
-    useHabitStore.getState().calculateGardenScore(); // Perbarui level kebun saat habit dicatat
+    useHabitStore.getState().calculateGardenScore(); 
   }
 }));
