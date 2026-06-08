@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { format, addDays, subDays } from 'date-fns'
 import { id as localeId } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Trash2, Link } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
 import { useAuthStore, useScheduleStore, useTaskStore } from '../store'
 import Topbar from '../components/Topbar'
-import AddModal from '../components/AddModal' // Impor AddModal di sini
+import AddModal from '../components/AddModal'
 
 const HOURS = Array.from({ length: 19 }, (_, i) => i + 5)
 const BLOCK_COLOR = {
@@ -21,10 +21,10 @@ export default function SchedulePage() {
   const { tasks, toggleTask } = useTaskStore()
   
   const [date, setDate] = useState(new Date())
-  // State baru untuk kontrol modal mandiri dari timeline jam
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [selectedHour, setSelectedHour] = useState('09:00')
-  
+  const [hoveredHour, setHoveredHour] = useState(null) // State untuk handle hover pengganti tag <style>
+
   const dateStr = format(date, 'yyyy-MM-dd')
   const isToday = dateStr === format(new Date(), 'yyyy-MM-dd')
   const dateLabel = format(date, 'EEEE, d MMM', { locale: localeId })
@@ -35,7 +35,6 @@ export default function SchedulePage() {
 
   const daySchedules = schedules.filter(b => b.date === dateStr)
 
-  // Fungsi saat baris jam kosong diklik
   const handleHourClick = (hourNum) => {
     const formattedHour = String(hourNum).padStart(2, '0') + ':00'
     setSelectedHour(formattedHour)
@@ -43,7 +42,8 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="page-root">
+    // Memastikan lebar penuh (width: 100%) agar tidak menciut di dalam container utama
+    <div className="page-root" style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
       <Topbar 
         sub="Timeline & Sinkronisasi Task" 
         title={dateLabel} 
@@ -69,7 +69,8 @@ export default function SchedulePage() {
           </div>
         }
       />
-      <div className="page-scroll">
+      
+      <div className="page-scroll" style={{ flex: 1, width: '100%' }}>
         <div style={{ paddingTop: 8, paddingBottom: 20 }}>
           {HOURS.map((h) => {
             const hBlocks = daySchedules.filter((b) => {
@@ -77,8 +78,10 @@ export default function SchedulePage() {
               return sh === h
             })
 
+            const isEmpty = hBlocks.length === 0
+
             return (
-              <div key={h} style={{ display: 'flex', gap: 10, minHeight: 64 }}>
+              <div key={h} style={{ display: 'flex', gap: 10, minHeight: 64, width: '100%' }}>
                 {/* Label jam kiri */}
                 <div style={{ width: 42, fontSize: 11, color: 'var(--txt3)', paddingTop: 4, fontVariantNumeric: 'tabular-nums' }}>
                   {String(h).padStart(2,'0')}:00
@@ -86,14 +89,17 @@ export default function SchedulePage() {
                 
                 {/* Area konten timeline kanan */}
                 <div 
-                  onClick={() => hBlocks.length === 0 && handleHourClick(h)} // Hanya buka modal jika slot jam kosong
+                  onClick={() => isEmpty && handleHourClick(h)}
+                  onMouseEnter={() => isEmpty && setHoveredHour(h)}
+                  onMouseLeave={() => setHoveredHour(null)}
                   style={{ 
                     flex: 1, 
                     position: 'relative', 
-                    cursor: hBlocks.length === 0 ? 'pointer' : 'default',
-                    transition: 'background-color 0.2s'
+                    cursor: isEmpty ? 'pointer' : 'default',
+                    transition: 'background-color 0.2s',
+                    backgroundColor: hoveredHour === h ? 'rgba(255, 255, 255, 0.02)' : 'transparent',
+                    borderRadius: hoveredHour === h ? 'var(--r-md)' : '0px'
                   }}
-                  className={hBlocks.length === 0 ? "timeline-slot-empty" : ""}
                 >
                   <div style={{ height: '0.5px', background: 'var(--bdr)', marginBottom: 6 }} />
                   
@@ -104,7 +110,7 @@ export default function SchedulePage() {
                     return (
                       <div 
                         key={b.id} 
-                        onClick={(e) => e.stopPropagation()} // Mencegah modal terbuka saat mengklik isi jadwal eksis
+                        onClick={(e) => e.stopPropagation()} 
                         style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 'var(--r-md)', padding: 10, marginBottom: 6 }}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -138,23 +144,14 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      {/* TAMPILKAN MODAL SECARA DINAMIS DENGAN SETTING JAM AWAL */}
       {isAddModalOpen && (
         <AddModal 
           onClose={() => setIsAddModalOpen(false)} 
           defaultTab="block" 
-          initialHour={selectedHour} // Lempar jam yang diklik ke AddModal
-          initialDate={dateStr}      // Lempar tanggal aktif ke AddModal
+          initialHour={selectedHour} 
+          initialDate={dateStr}      
         />
       )}
-
-      {/* Tambahan style CSS opsional untuk efek hover baris kosong */}
-      <style>{`
-        .timeline-slot-empty:hover {
-          background-color: rgba(255, 255, 255, 0.02);
-          border-radius: var(--r-md);
-        }
-      `}</style>
     </div>
   )
 }
