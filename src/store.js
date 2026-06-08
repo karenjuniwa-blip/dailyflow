@@ -177,13 +177,13 @@ export const useHabitLogStore = create((set, get) => ({
   error: null,
   fetchHabitLogs: async (userId) => {
     set({ loading: true, error: null });
-    const { data, error } = await supabase.from('habit_log').select('*').eq('user_id', userId).order('logged_at', { ascending: false });
+    const { data, error } = await supabase.from('habit_logs').select('*').eq('user_id', userId).order('logged_at', { ascending: false });
     if (error) set({ error: error.message });
     set({ habitLogs: data || [], loading: false });
   },
   addHabitLog: async (userId, logData) => {
     set({ loading: true, error: null });
-    const { error } = await supabase.from('habit_log').insert({ ...logData, user_id: userId });
+    const { error } = await supabase.from('habit_logs').insert({ ...logData, user_id: userId });
     if (error) { set({ error: error.message, loading: false }); throw error; }
     await get().fetchHabitLogs(userId);
     useHabitStore.getState().calculateGardenScore(); // Perbarui level kebun saat habit dicatat
