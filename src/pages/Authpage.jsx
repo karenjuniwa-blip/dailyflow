@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { LayoutDashboard, Shield, Eye, EyeOff } from 'lucide-react'
 import { useAuthStore } from '../store'
 
-export default function AuthPage() {
+export default function Authpage() {
   const { signIn, signUp } = useAuthStore()
   const handleLogin = async (e) => {
     e.preventDefault();

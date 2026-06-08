@@ -7,7 +7,7 @@ import LoadingScreen from './components/LoadingScreen'
 import BottomNav     from './components/BottomNav'
 import AddModal      from './components/AddModal'
 import OfflinePage   from './components/OfflinePage'
-import Authpage     from './pages/Authpage'
+import Authpage     from './pages/Authpage.jsx'
 import TodayPage    from './pages/TodayPage'
 import SchedulePage from './pages/SchedulePage'
 import HabitsPage   from './pages/HabitsPage'
@@ -76,7 +76,7 @@ function AuthGuard({ children }) {
   }, [])
 
   if (loading) return <LoadingScreen />
-  if (!user)   return <AuthPage />
+  if (!user)   return <Authpage />
   return children
 }
 
