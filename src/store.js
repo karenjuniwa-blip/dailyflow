@@ -110,7 +110,7 @@ export const useHabitStore = create((set, get) => ({
     if (currentHabit.frequency === 'daily') {
       while (true) {
         const dateStr = format(checkDate, 'yyyy-MM-dd');
-        const hasLog = habitLogs.some(l => l.habit_id === habitId && format(new Date(l.logged_at), 'yyyy-MM-dd') === dateStr);
+        const hasLog = habitLogs.some(l => l.habit_id === habitId && format(new Date(l.created_at), 'yyyy-MM-dd') === dateStr);
         if (hasLog) {
           streak++;
           checkDate.setDate(checkDate.getDate() - 1);
@@ -177,7 +177,7 @@ export const useHabitLogStore = create((set, get) => ({
   error: null,
   fetchHabitLogs: async (userId) => {
     set({ loading: true, error: null });
-    const { data, error } = await supabase.from('habit_logs').select('*').eq('user_id', userId).order('logged_at', { ascending: false });
+    const { data, error } = await supabase.from('habit_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false });
     if (error) set({ error: error.message });
     set({ habitLogs: data || [], loading: false });
   },
